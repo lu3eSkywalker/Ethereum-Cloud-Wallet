@@ -1,7 +1,7 @@
 import express from 'express';
 import { getPrivateKey, Signup } from '../controllers/Signup';
 import { login, signMessage } from '../controllers/Login';
-import { sendTxn } from '../controllers/Txns';
+import { getStatusByTxHash, sendTxn } from '../controllers/Txns';
 
 const router: express.Router = express.Router();
 
@@ -12,5 +12,8 @@ router.post("/privateKey", getPrivateKey);
 router.post("/login", login);
 router.post("/signtxs", signMessage);
 router.post("/sendtxn", sendTxn);
+
+
+router.get("/getstatus/:id", getStatusByTxHash);
 
 export default router;

@@ -121,3 +121,73 @@ function parseJwt(token: any) {
   var payload = Buffer.from(base64Payload, "base64");
   return JSON.parse(payload.toString());
 }
+
+export const getStatusByTxHash = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const id = parseInt(req.params.id);
+
+  const jwtToken = req.header("Authorization");
+
+  const sendToken = parseJwt(jwtToken);
+
+  const userId = sendToken.id;
+
+  const txId = await prisma.transactionHash.findFirst({
+    where: {
+      userId: userId,
+    },
+  });
+
+  if (!txId) {
+    res.status(401).json({
+      success: false,
+      messages: "User's Transactions not found",
+    })
+  }
+
+  const txHash = txId?.txHash[id];
+
+  if(!txHash) {
+    res.status(401).json({
+      success: false,
+      message: "Transaction Hash Not found"
+    });
+    return;
+  }
+
+  try {
+    const providers = new ethers.JsonRpcProvider(
+      ""
+    );
+
+    const receipt = await providers.getTransactionReceipt(txHash);
+
+    if (!receipt) {
+      res.status(411).json({
+        success: false,
+        message: "Transaction is still processing",
+      });
+      return;
+    }
+
+    console.log(
+      "This is the function getTransactionReceipt: ",
+      receipt?.status
+    );
+
+    console.log(receipt?.status === 1 ? "Successfull" : "Failed");
+
+    res.status(200).json({
+      success: true,
+      message: "Receipt Fetched Successfully",
+    });
+  } catch (error) {
+    res.status(200).json({
+      success: true,
+      Error: error,
+      message: "Errors fetching receipt details",
+    });
+  }
+};
