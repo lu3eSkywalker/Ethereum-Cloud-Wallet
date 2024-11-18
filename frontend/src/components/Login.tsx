@@ -1,7 +1,33 @@
+import axios from "axios";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 
 const Login = () => {
+  const [email, setEmail] = useState<String>("");
+  const [password, setPassword] = useState<String>("");
+
+  async function login() {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_ADDRESS}/login`,
+        {
+          email: email,
+          password: password,
+        },
+        {
+          withCredentials: true
+        }
+      );
+      console.log(response);
+      console.log(response.data);
+      console.log("This is the JWT Token: ", response.data.data);
+
+
+    } catch (error) {
+      console.log("Error: ", error);
+    }
+  }
+
   return (
     <div className="bg-slate-900">
       <div className="min-h-screen text-gray-900 flex justify-center">
@@ -22,13 +48,18 @@ const Login = () => {
                     className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                     type="email"
                     placeholder="Email"
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                   <input
                     className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                     type="password"
                     placeholder="Password"
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                  <button className="mt-5 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
+                  <button
+                    className="mt-5 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
+                    onClick={() => login()}
+                  >
                     <svg
                       className="w-6 h-6 -ml-2"
                       fill="none"

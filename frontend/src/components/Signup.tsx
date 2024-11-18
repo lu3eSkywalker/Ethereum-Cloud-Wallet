@@ -1,8 +1,28 @@
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import ethImage from "../assets/ethImage.jpg";
+import axios from "axios";
 
 const Signup = () => {
+  const [username, setUsername] = useState<String>("");
+  const [email, setEmail] = useState<String>("");
+  const [password, setPassword] = useState<String>("");
+
+  async function signup() {
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_ADDRESS}/signup`, {
+        username: username,
+        email: email,
+        password: password
+      });
+
+      console.log(response);
+      console.log(response.data);
+    }catch (error) {
+      console.log("Error: ", error)
+    }
+  }
+
   return (
     <div className="bg-slate-900">
       <div className="min-h-screen text-gray-900 flex justify-center">
@@ -21,21 +41,27 @@ const Signup = () => {
                 <div className="mx-auto max-w-xs">
                   <input
                     className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                    type="UserName"
-                    placeholder="Password"
+                    type="text"
+                    placeholder="UserName"
+                    onChange={(e) => setUsername(e.target.value)}
                   />
                   <input
                     className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                     type="email"
                     placeholder="Email"
+                    onChange={(e) => setEmail(e.target.value)}
                   />
 
                   <input
                     className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                     type="password"
                     placeholder="Password"
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                  <button className="mt-5 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
+                  <button
+                    className="mt-5 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
+                    onClick={() => signup()}
+                  >
                     <svg
                       className="w-6 h-6 -ml-2"
                       fill="none"
@@ -70,7 +96,9 @@ const Signup = () => {
                   <div className="my-[150px] h-[]">
                     <Image
                       className="w-[1500px]"
-                      src={"https://www.tailwindtap.com/assets/components/form/createaccount/login.svg"}
+                      src={
+                        "https://www.tailwindtap.com/assets/components/form/createaccount/login.svg"
+                      }
                       width={700}
                       height={700}
                       alt="Image"
