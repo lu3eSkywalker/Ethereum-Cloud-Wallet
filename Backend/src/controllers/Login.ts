@@ -22,14 +22,9 @@ const prismaDB5 = new PrismaClientDB5();
 
 const JWT_SECRET = "web3";
 
-const LoginSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(5).max(15)
-});
-
 export const login = async(req: Request, res: Response): Promise<void> => {
     try {
-        const parsedInput = await LoginSchema.safeParse(req.body);
+        const parsedInput = LoginSchema.safeParse(req.body);
         if(!parsedInput.success) {
             res.status(411).json({
                 success: false,
@@ -74,6 +69,13 @@ export const login = async(req: Request, res: Response): Promise<void> => {
 
         const jwtTokenCreation = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h'});
 
+        res.cookie('jwt', jwtTokenCreation, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+          });
+          
+
         res.status(200).json({
             success: true,
             data: jwtTokenCreation,
@@ -88,6 +90,7 @@ export const login = async(req: Request, res: Response): Promise<void> => {
         })
     }
 }
+
 
 const txSchema = z.object({
     quantity: z.number(),
