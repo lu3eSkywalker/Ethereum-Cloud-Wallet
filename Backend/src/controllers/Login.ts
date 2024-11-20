@@ -20,7 +20,7 @@ const prismaDB3 = new PrismaClientDB3();
 const prismaDB4 = new PrismaClientDB4();
 const prismaDB5 = new PrismaClientDB5();
 
-const JWT_SECRET = "web3";
+const JWT_SECRET = process.env.JWT_SECRET || "";
 
 export const login = async(req: Request, res: Response): Promise<void> => {
     try {

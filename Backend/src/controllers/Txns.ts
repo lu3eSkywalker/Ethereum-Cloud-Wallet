@@ -24,11 +24,7 @@ export const sendTxn = async (req: Request, res: Response): Promise<void> => {
   const toAddress = parsedInput.data.toAddress;
   const ethValue = parsedInput.data.valueEthToSend;
 
-  const jwtToken = req.header("Authorization");
-
-  const sendToken = parseJwt(jwtToken);
-
-  const userId = sendToken.id;
+  const userId = req.user.id;
 
   const privateKey = await getPrivateKey(userId);
 
@@ -116,23 +112,13 @@ export const sendTxn = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-function parseJwt(token: any) {
-  var base64Payload = token.split(".")[1];
-  var payload = Buffer.from(base64Payload, "base64");
-  return JSON.parse(payload.toString());
-}
-
 export const getStatusByTxHash = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   const id = parseInt(req.params.id);
 
-  const jwtToken = req.header("Authorization");
-
-  const sendToken = parseJwt(jwtToken);
-
-  const userId = sendToken.id;
+  const userId = req.user.id
 
   const txId = await prisma.transactionHash.findFirst({
     where: {
@@ -144,15 +130,15 @@ export const getStatusByTxHash = async (
     res.status(401).json({
       success: false,
       messages: "User's Transactions not found",
-    })
+    });
   }
 
   const txHash = txId?.txHash[id];
 
-  if(!txHash) {
+  if (!txHash) {
     res.status(401).json({
       success: false,
-      message: "Transaction Hash Not found"
+      message: "Transaction Hash Not found",
     });
     return;
   }
@@ -172,22 +158,42 @@ export const getStatusByTxHash = async (
       return;
     }
 
-    console.log(
-      "This is the function getTransactionReceipt: ",
-      receipt?.status
-    );
-
-    console.log(receipt?.status === 1 ? "Successfull" : "Failed");
-
     res.status(200).json({
       success: true,
       message: "Receipt Fetched Successfully",
     });
   } catch (error) {
-    res.status(200).json({
+    res.status(500).json({
       success: true,
       Error: error,
       message: "Errors fetching receipt details",
+    });
+  }
+};
+
+export const GetAllTxnsHashes = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+      const userId = req.user.id;
+
+      const txHashArray = await prisma.transactionHash.findFirst({
+        where: {
+          userId: userId,
+        },
+      });
+
+      res.status(200).json({
+        success: true,
+        data: txHashArray,
+        message: "Successfully Fetched the transaction array",
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: true,
+      Error: error,
+      message: "Errors fetching Txns Hashes",
     });
   }
 };
