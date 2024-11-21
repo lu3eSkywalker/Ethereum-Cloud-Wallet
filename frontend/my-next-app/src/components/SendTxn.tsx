@@ -9,14 +9,21 @@ import { AppDispatch, RootState } from "../store/store";
 import { useDispatch } from "react-redux";
 import { setTxHashArray, setStatusArray } from "@/store/slices/txArraySlice";
 import { useRouter } from "next/router";
-
+import CheckTxnsDetails from "./CheckTxnsDetails";
 
 const SendTxn = () => {
   const [showSendPopUp, setSendShowPopUp] = useState(false);
   const [showTxnsPopUp, setShowTxnsPopUp] = useState(false);
+  const [showTxnDetailPopUp, setShowTxnDetailPopUp] = useState(false);
+  const [dataForPopUp, setDataForPopUp] = useState("");
+
+  const [transactionValueArray, setTransactionValueArray] = useState<any[]>([]);
+  const [transactionValueArray2, setTransactionValueArray2] = useState<any[]>(
+    []
+  );
 
   const router = useRouter();
-  
+
   // Redux Logic
   const dispatch = useDispatch<AppDispatch>();
   const txHashArray = useSelector(
@@ -36,7 +43,10 @@ const SendTxn = () => {
       );
       dispatch(setTxHashArray(response.data.data.txHash));
     } catch (error: any) {
-      console.log("This is the catch block error: ", error.response.data.redirect);
+      console.log(
+        "This is the catch block error: ",
+        error.response.data.redirect
+      );
       console.log(error);
       router.push(`${error.response.data.redirect}`);
     }
@@ -69,50 +79,68 @@ const SendTxn = () => {
     }
   }
 
-  const ethBalance = useFetchBalance();
-  const ethAddress = useFetchAddress();
+  // const anotherAnotherAnotherArray: any = [];
 
-  const anotherArray: any = [];
-  const anotherAnotherArray: any = [];
+  async function getTxInfo() {
+    try {
+      const response = await Promise.all(
+        txHashArray.map(async (data) => {
+          return await axios.post(`${process.env.NEXT_PUBLIC_RPC_URL}`, {
+            id: 1,
+            jsonrpc: "2.0",
+            method: "eth_getTransactionByHash",
+            params: [`${data}`],
+          });
+        })
+      );
 
-  // Converting the Hexdecimal ethBalance to string and then to int and then to eth
-  const ethBalanceToString = ethBalance?.toString();
-  if (ethBalanceToString === undefined) {
-    return;
-  }
-  const stringToInt = parseInt(ethBalanceToString, 16);
-  const weiToEth = stringToInt / 10 ** 18;
-  const weiRounded = weiToEth.toFixed(7);
-
-  function getAllHashes() {
-    const arrayLength = txHashArray.length;
-
-    if (txHashArray.length < 6) {
-      for (let i = 0; i < arrayLength; i++) {
-        anotherArray.push(txHashArray[i]);
-      }
-
-      for (let i = 0; i < arrayLength; i++) {
-        anotherAnotherArray.push(statusArray[i]?.data.result.status);
-      }
-    } else {
-      for (let i = 0; i < 6; i++) {
-        anotherArray.push(txHashArray[i]);
-      }
-
-      for (let i = 0; i < 6; i++) {
-        anotherAnotherArray.push(statusArray[i]?.data.result.status);
-      }
+      console.log(response);
+      console.log(response[0].data.result.value);
+      setTransactionValueArray(response);
+    } catch (error) {
+      console.log(error);
     }
   }
 
-  getAllHashes();
+  useEffect(() => {
+    getTxInfo();
+  }, [txHashArray]);
+
+  const ethBalance = useFetchBalance();
+  const ethAddress = useFetchAddress();
+
+  const ethereumBalance = convertHexToWeiToEth(ethBalance);
+
+  // Function to convert HEX to Wei To ETH
+  function convertHexToWeiToEth(ethBalance: any) {
+    const ethBalanceToString = ethBalance?.toString();
+    if (ethBalanceToString === undefined) {
+      return;
+    }
+    const stringToInt = parseInt(ethBalanceToString, 16);
+    const weiToEth = stringToInt / 10 ** 18;
+    const weiRounded = weiToEth.toFixed(7);
+    return weiRounded;
+  }
+
+  function putValuesInTransactionArray() {
+    if (transactionValueArray.length < 0) {
+      console.log("The Array is empty");
+      return;
+    }
+    // const newArray = transactionValueArray.slice(0, 5).map((txn) => convertHexToWeiToEth(txn?.data?.result?.value));
+    const newArray = transactionValueArray.slice(0, 5).map((txn) => txn?.data);
+    setTransactionValueArray2(newArray);
+    console.log("This is the fucking array: ", transactionValueArray2);
+  }
+
+  useEffect(() => {
+    putValuesInTransactionArray();
+  }, [transactionValueArray])
 
   return (
     <div className="bg-customDark">
       <div className="min-h-screen flex items-center justify-center p-6">
-        {/* <div className="w-[1100px] h-[1000px] bg-customDark2 rounded-lg shadow-lg p-6 space-y-6"> */}
-
         <div
           className="w-[1100px] bg-customDark2 rounded-lg shadow-lg p-6 space-y-6"
           style={{ height: "calc(1000px + 400px)" }}
@@ -133,7 +161,7 @@ const SendTxn = () => {
           <div className="text-center space-y-2">
             <h3 className="text-4xl font-bold">
               <span className="text-white text-3xl">
-                {weiRounded} SepoliaETH
+                {ethereumBalance} SepoliaETH
               </span>
               <br />
               <br />
@@ -154,11 +182,24 @@ const SendTxn = () => {
             >
               Send
             </button>
+
+            <button
+              className="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold"
+              onClick={() => setShowTxnDetailPopUp(true)}
+            >
+              Transaction
+            </button>
             <button
               className="bg-blue-600 text-white px-3 py-2 rounded-xl text-lg mx-4 font-semibold"
               onClick={() => setShowTxnsPopUp(true)}
             >
               Check Txns
+            </button>
+            <button
+              className="bg-blue-600 text-white px-3 py-2 rounded-xl text-lg mx-4 font-semibold"
+              onClick={() => putValuesInTransactionArray()}
+            >
+              PutValuesInTransactionArray
             </button>
           </div>
 
@@ -168,6 +209,10 @@ const SendTxn = () => {
 
           {showTxnsPopUp && (
             <CheckTxns onClose={() => setShowTxnsPopUp(false)} />
+          )}
+
+          {showTxnDetailPopUp && (
+            <CheckTxnsDetails onClose={() => setShowTxnDetailPopUp(false)} data={dataForPopUp} />
           )}
 
           <br />
@@ -180,26 +225,30 @@ const SendTxn = () => {
             </button>
             <div className="w-[250px] h-1 bg-blue-400 mt-1"></div>
 
-            {anotherArray.map((data: any, index: number) => {
-              const data1 = anotherAnotherArray[index];
-              return (
-                <div>
-                  <div className="bg-customDark2 w-[1000px] h-[120px] mx-[5px] my-4 border border-white rounded-lg p-4">
-                    <div className="flex">
-                      <p className="text-white my-2 text-3xl font-medium"></p>
-                      <p className="text-white my-2 text-2xl font-serif">
-                        Transaction {index}: {data}
-                      </p>
-                    </div>
-                    {data1 === "0x1" ? (
-                      <p className="text-green-600 text-xl">Confirmed</p>
-                    ) : (
-                      <p className="text-red-600 text-xl">Error</p>
-                    )}
+            {transactionValueArray2?.map((data: any, index: number) => (
+              <div className="bg-customDark2 w-[1000px] h-[120px] mx-[5px] my-4 border-white rounded-lg p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <button
+                      onClick={() => {
+                        setDataForPopUp(data?.result?.hash)
+                        setShowTxnDetailPopUp(true)
+                      }}
+                      className="text-white my-2 text-2xl font-serif"
+                    >
+                      Transaction {index}
+                    </button>
+                    <p className="text-green-600 text-xl">Confirmed</p>
+                  </div>
+                  <div>
+                    <p className="text-white text-2xl mx-[-50px] font-serif">
+                      {convertHexToWeiToEth(data?.result?.value)} SepoliaETH
+                      {/* {data?.result?.value} */}
+                    </p>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </div>
