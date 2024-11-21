@@ -5,7 +5,7 @@ const Redirect = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/lstpage');
+    router.push('/ethcloudwallet');
   }, [router]);
 
   return null;

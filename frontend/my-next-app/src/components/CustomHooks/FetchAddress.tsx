@@ -1,9 +1,12 @@
 import axios from "axios";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
 const useFetchAddress = () => {
   const [ethAddress, setEthAddress] = useState<String | null>( null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const router = useRouter();
 
   useEffect(() => {
     async function getData() {
@@ -15,12 +18,12 @@ const useFetchAddress = () => {
           }
         );
 
-        // console.log(response.data);
-        // console.log("This is the ethereum address: ", response.data.data.ethereumAddress);
         setEthAddress(response.data.data.ethereumAddress);
 
-      } catch (error) {
-        console.log("Error: ", error);
+      } catch (error: any) {
+        console.log(error);
+        console.log("This is the endpoint to get redirected to when no cookie: ", error.response.data.redirect);
+        router.push(`${error.response.data.redirect}`)
       } finally {
         setLoading(false);
       }

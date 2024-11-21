@@ -1,6 +1,5 @@
 import Image from "next/image";
 import React, { useState } from "react";
-import ethImage from "../assets/ethImage.jpg";
 import axios from "axios";
 
 const Signup = () => {

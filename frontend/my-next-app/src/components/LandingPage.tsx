@@ -14,7 +14,7 @@ const LandingPage = () => {
       <br />
 
       <div className="flex justify-center">
-        <div className="bg-sharpBlue w-[1450px] h-[350px] p-6 rounded-3xl shadow-lg ">
+        <div className="bg-sharpBlue w-[1425px] h-[350px] p-6 rounded-3xl shadow-lg mx-4 ">
           <p className="text-white font-bold text-[70px] font-mono my-[20px] mx-[80px]">
             Ethereum Wallet
           </p>
@@ -34,7 +34,7 @@ const LandingPage = () => {
       <div className="flex justify-center">
         {/* Two Boxes */}
 
-        <div className="w-[700px] h-[600px] bg-greyIshBlack rounded-3xl shadow-lg p-6 space-y-6 my-[40px] mx-[30px]">
+        <div className="w-[700px] h-[600px] bg-greyIshBlack rounded-3xl shadow-lg p-6 space-y-6 my-[40px] mx-[15px]">
           <br />
 
           <div>

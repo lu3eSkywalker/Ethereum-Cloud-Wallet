@@ -1,5 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import SendPopUp from "./SendPopUp";
+import CheckTxns from "./CheckTxns";
 import useFetchBalance from "./FetchBalance";
 import useFetchAddress from "./FetchAddress";
 import { useSelector } from "react-redux";
@@ -10,6 +12,8 @@ import { useRouter } from "next/router";
 
 
 const SendTxn = () => {
+  const [showSendPopUp, setSendShowPopUp] = useState(false);
+  const [showTxnsPopUp, setShowTxnsPopUp] = useState(false);
 
   const router = useRouter();
   
@@ -142,6 +146,29 @@ const SendTxn = () => {
 
           <br />
           <br />
+
+          <div className="flex justify-center grid-cols-4 gap-2">
+            <button
+              className="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold"
+              onClick={() => setSendShowPopUp(true)}
+            >
+              Send
+            </button>
+            <button
+              className="bg-blue-600 text-white px-3 py-2 rounded-xl text-lg mx-4 font-semibold"
+              onClick={() => setShowTxnsPopUp(true)}
+            >
+              Check Txns
+            </button>
+          </div>
+
+          {showSendPopUp && (
+            <SendPopUp onClose={() => setSendShowPopUp(false)} />
+          )}
+
+          {showTxnsPopUp && (
+            <CheckTxns onClose={() => setShowTxnsPopUp(false)} />
+          )}
 
           <br />
           <br />
