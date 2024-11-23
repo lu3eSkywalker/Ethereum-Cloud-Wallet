@@ -1,40 +1,71 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import React, { useEffect, useState } from "react";
-import SendPopUp from "./SendPopUp";
-import CheckTxns from "./CheckTxns";
-import useFetchBalance from "./FetchBalance";
-import useFetchAddress from "./FetchAddress";
-import { useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store/store";
-import { useDispatch } from "react-redux";
-import { setTxHashArray, setStatusArray } from "@/store/slices/txArraySlice";
+import SendPopUp from "./PopUps/SendPopUp";
 import { useRouter } from "next/router";
-import CheckTxnsDetails from "./CheckTxnsDetails";
+import CheckTxnsDetails from "./PopUps/CheckTxnsDetails";
 import Navbar from "./Design/Navbar";
-import Image from "next/image";
-import ethLogo from "../assets/eth_wallet_2.png";
+import { convertHexToWeiToEth } from "./Utils/EthConvertor";
+import useFetchAddress from "./CustomHooks/FetchAddress";
+import useFetchBalance from "./CustomHooks/FetchBalance";
+import CheckLogin from "./Utils/CheckLogin";
+
+interface StatusArray {
+  data: {
+    result: {
+      status: string;
+    };
+  };
+}
+
+interface TransactionValueArray {
+  data: {
+    result: {
+      hash: string;
+      status: string;
+      value: string;
+    };
+  };
+}
+
+interface TransactionValueArray2 {
+  result: {
+    hash: string;
+    status: string;
+    value: string;
+  };
+}
 
 const SendTxn = () => {
   const [showSendPopUp, setSendShowPopUp] = useState(false);
-  const [showTxnsPopUp, setShowTxnsPopUp] = useState(false);
   const [showTxnDetailPopUp, setShowTxnDetailPopUp] = useState(false);
-  const [dataForPopUp, setDataForPopUp] = useState("");
+  const [dataForPopUp, setDataForPopUp] = useState<string>("");
+  const [txHashArray, setTxHashArray] = useState<string[]>([]);
+  const [statusArray, setStatusArray] = useState<StatusArray[]>([]);
 
-  const [transactionValueArray, setTransactionValueArray] = useState<any[]>([]);
-  const [transactionValueArray2, setTransactionValueArray2] = useState<any[]>(
-    []
-  );
+  const [txHashArrayEmpty, setTxHashArrayEmpty] = useState<boolean>(false);
+
+  const [transactionValueArray, setTransactionValueArray] = useState<
+    TransactionValueArray[]
+  >([]);
+  const [transactionValueArray2, setTransactionValueArray2] = useState<
+    TransactionValueArray2[]
+  >([]);
 
   const router = useRouter();
 
-  // Redux Logic
-  const dispatch = useDispatch<AppDispatch>();
-  const txHashArray = useSelector(
-    (state: RootState) => state.transactions.txHashArray
-  );
-  const statusArray = useSelector(
-    (state: RootState) => state.transactions.statusArray
-  );
+  const ethBalance = useFetchBalance();
+  const ethAddress = useFetchAddress();
+  const ethereumBalance = convertHexToWeiToEth(ethBalance);
+
+  // This checks if the token is blacklisted or not
+  CheckLogin();
+
+  {
+    /**
+  First, We Will Get all the Users Tx Hashes and will put them in TxHashArray
+  Then, We will Check the Status of all the transaction and put the response in statusArray
+  */
+  }
 
   async function checkTxns() {
     try {
@@ -44,14 +75,26 @@ const SendTxn = () => {
           withCredentials: true,
         }
       );
-      dispatch(setTxHashArray(response.data.data.txHash));
-    } catch (error: any) {
-      console.log(
-        "This is the catch block error: ",
-        error.response.data.redirect
-      );
-      console.log(error);
-      router.push(`${error.response.data.redirect}`);
+
+      if (response.data.data === null) {
+        console.log("There is no data");
+        setTxHashArrayEmpty(true);
+        return;
+      }
+      setTxHashArray(response.data.data.txHash);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          console.log(
+            "This is the catch block error: ",
+            error.response.data.redirect
+          );
+          console.log(error);
+          router.push(`${error.response.data.redirect}`);
+        }
+      } else {
+        console.log("An unexpected error occurred:", error);
+      }
     }
   }
 
@@ -65,6 +108,10 @@ const SendTxn = () => {
 
   async function checkStatus() {
     try {
+      if (txHashArray.length === 0) {
+        return;
+      }
+
       const response = await Promise.all(
         txHashArray.map(async (data) => {
           return await axios.post(`${process.env.NEXT_PUBLIC_RPC_URL}`, {
@@ -76,15 +123,28 @@ const SendTxn = () => {
         })
       );
 
-      dispatch(setStatusArray(response));
+      console.log("This is the fucking response: ", response);
+      setStatusArray(response);
       console.log(response);
-    } catch (error) {
+    } catch (error: unknown) {
       console.log(error);
     }
   }
 
+  {
+    /**
+    Then, we get the transaction Info using the txHashArray and put them in the state setTransactionValueArray
+    Then, we take the data from transactionValueArray and put them into TransactionValueArray2
+    (because it was showing some async error while rendering data directly using transactionValueArray)
+    */
+  }
+
   async function getTxInfo() {
     try {
+      if (txHashArray.length === 0) {
+        return;
+      }
+
       const response = await Promise.all(
         txHashArray.map(async (data) => {
           return await axios.post(`${process.env.NEXT_PUBLIC_RPC_URL}`, {
@@ -96,7 +156,7 @@ const SendTxn = () => {
         })
       );
 
-      console.log(response);
+      console.log("This is the fucking response: ", response);
       console.log(response[0].data.result.value);
       setTransactionValueArray(response);
     } catch (error) {
@@ -108,32 +168,13 @@ const SendTxn = () => {
     getTxInfo();
   }, [txHashArray]);
 
-  const ethBalance = useFetchBalance();
-  const ethAddress = useFetchAddress();
-
-  const ethereumBalance = convertHexToWeiToEth(ethBalance);
-
-  // Function to convert HEX to Wei To ETH
-  function convertHexToWeiToEth(ethBalance: any) {
-    const ethBalanceToString = ethBalance?.toString();
-    if (ethBalanceToString === undefined) {
-      return;
-    }
-    const stringToInt = parseInt(ethBalanceToString, 16);
-    const weiToEth = stringToInt / 10 ** 18;
-    const weiRounded = weiToEth.toFixed(7);
-    return weiRounded;
-  }
-
   function putValuesInTransactionArray() {
     if (transactionValueArray.length < 0) {
       console.log("The Array is empty");
       return;
     }
-    // const newArray = transactionValueArray.slice(0, 5).map((txn) => txn?.data);
     const newArray = transactionValueArray.map((txn) => txn?.data);
     setTransactionValueArray2(newArray);
-    console.log("This is the fucking array: ", transactionValueArray2);
   }
 
   useEffect(() => {
@@ -185,22 +226,12 @@ const SendTxn = () => {
                 className="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold"
                 onClick={() => setSendShowPopUp(true)}
               >
-                Send
-              </button>
-              <button
-                className="bg-blue-600 text-white px-3 py-2 rounded-xl text-lg mx-4 font-semibold"
-                onClick={() => setShowTxnsPopUp(true)}
-              >
-                Check Txns
+                Send ETH
               </button>
             </div>
 
             {showSendPopUp && (
               <SendPopUp onClose={() => setSendShowPopUp(false)} />
-            )}
-
-            {showTxnsPopUp && (
-              <CheckTxns onClose={() => setShowTxnsPopUp(false)} />
             )}
 
             {showTxnDetailPopUp && (
@@ -220,9 +251,22 @@ const SendTxn = () => {
               </button>
               <div className="w-[250px] h-1 bg-blue-400 mt-1"></div>
 
+              {txHashArrayEmpty ? (
+                <div>
+                  <p className="text-white font-mono text-4xl my-[50px]">
+                    No Transactions
+                  </p>
+                </div>
+              ) : (
+                <div></div>
+              )}
+
               <div>
-                {transactionValueArray2?.map((data: any, index: number) => (
-                  <div className="bg-customDark2 w-[1000px] h-[120px] mx-[5px] my-4 border-white rounded-lg p-4">
+                {transactionValueArray2?.map((data, index: number) => (
+                  <div
+                    key={data?.result?.hash || index}
+                    className="bg-customDark2 w-[1000px] h-[120px] mx-[5px] my-4 border-white rounded-lg p-4"
+                  >
                     <div className="flex justify-between items-center">
                       <div>
                         <button
@@ -256,7 +300,6 @@ const SendTxn = () => {
         </div>
       </div>
     </div>
-
   );
 };
 

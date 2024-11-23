@@ -5,9 +5,9 @@ import { useRouter } from "next/router";
 import Navbar from "./Design/Navbar";
 
 const Signup = () => {
-  const [username, setUsername] = useState<String>("");
-  const [email, setEmail] = useState<String>("");
-  const [password, setPassword] = useState<String>("");
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [invalidCredentials, setInvalidCredentials] = useState<boolean>(false);
 
   const router = useRouter();
@@ -44,15 +44,11 @@ const Signup = () => {
       </div>
       <div className="bg-customDark3">
         <div className="min-h-screen text-gray-900 flex justify-center">
-          <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
+        <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1 h-[900px]">
             <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
               <div></div>
               <br />
               <br />
-              <br />
-              <br />
-              <br />
-
               <div className="mt-12 flex flex-col items-center">
                 <h1 className="text-2xl xl:text-3xl font-extrabold">Signup</h1>
                 <div className="w-full flex-1 mt-8">
@@ -105,7 +101,6 @@ const Signup = () => {
                       <div></div>
                     )}
                     <p className="mt-6 text-xs text-gray-600 text-center">
-                      I agree to abide by templatana's
                       <a
                         href="#"
                         className="border-b border-gray-500 border-dotted"
@@ -121,14 +116,13 @@ const Signup = () => {
                       </a>
                     </p>
 
-                    <div className="my-[150px] h-[]">
+                    <div className="my-[50px] mx-10">
                       <Image
-                        className="w-[1500px]"
                         src={
                           "https://www.tailwindtap.com/assets/components/form/createaccount/login.svg"
                         }
-                        width={700}
-                        height={700}
+                        width={200}
+                        height={200}
                         alt="Image"
                       />
                     </div>
@@ -138,7 +132,7 @@ const Signup = () => {
             </div>
             <div className="flex-1 bg-indigo-700 text-center hidden lg:flex">
               <div
-                className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat h-[1000px]"
+                className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat h-[800px]"
                 style={{
                   backgroundImage: "url('https://i.redd.it/ytciain2u0m21.jpg')",
                 }}

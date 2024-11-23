@@ -5,8 +5,8 @@ import React, { useState } from "react";
 import Navbar from "./Design/Navbar";
 
 const Login = () => {
-  const [email, setEmail] = useState<String>("");
-  const [password, setPassword] = useState<String>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [invalidCredentials, setInvalidCredentials] = useState<boolean>(false);
 
   const router = useRouter();

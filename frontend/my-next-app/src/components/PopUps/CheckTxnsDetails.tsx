@@ -1,24 +1,28 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { hexToNumber, hexToEth } from "../Utils/EthConvertor";
 
 interface TransactionData {
-      result: {
-        nonce: string;
-        maxFeePerGas: string;
-        value: string;
-        from: string;
-        to: string;
-        chainId: string;
-        status: string;
-        gasPrice: string;
-        blockNumber: string
-      };
-  }
-  
+  result: {
+    nonce: string;
+    maxFeePerGas: string;
+    value: string;
+    from: string;
+    to: string;
+    chainId: string;
+    status: string;
+    gasPrice: string;
+    blockNumber: string;
+  };
+}
 
-const CheckTxnsDetails = ({ onClose, data }: any) => {
-    const [transactionData, setTransactionData] = useState<TransactionData>();
+interface CheckDetailsProp {
+  onClose: () => void,
+  data: string
+}
 
+const CheckTxnsDetails: React.FC<CheckDetailsProp> = ({ onClose, data }) => {
+  const [transactionData, setTransactionData] = useState<TransactionData>();
 
   async function getTxInfo() {
     try {
@@ -31,34 +35,22 @@ const CheckTxnsDetails = ({ onClose, data }: any) => {
 
       const transaction = response?.data?.result;
 
-
       console.log("This is the fucking response: ", response);
       console.log("Searching in the tree: ", response?.data.result.value);
-      setTransactionData({result: transaction});
-    } catch (error: any) {
+      setTransactionData({ result: transaction });
+    } catch (error: unknown) {
       console.log("Error: ", error);
     }
   }
 
   useEffect(() => {
     getTxInfo();
-  }, []);
+  });
 
-  console.log("This is the fucking Transaction data: ", transactionData?.result.nonce);
-
-  function hexToNumber(data: any) {
-    const convertToString = data?.toString();
-    const stringToInt = parseInt(convertToString, 16);
-    return stringToInt;
-  }
-
-  function hexToEth(data: any) {
-    const convertToString = data?.toString();
-    const stringToInt = parseInt(convertToString, 16);
-    const weiToEth = stringToInt / 10 ** 18;
-    const weiRounded = weiToEth.toFixed(10);
-    return weiRounded;
-  }
+  console.log(
+    "This is the fucking Transaction data: ",
+    transactionData?.result.nonce
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
@@ -79,56 +71,69 @@ const CheckTxnsDetails = ({ onClose, data }: any) => {
         <div className="overflow-y-auto h-[800px]">
           <br />
 
-          {/* <div className="flex justify-between w-full">
-            <p className="text-white font-bold">Status</p>
-            <p className="text-white font-bold">Confirmed</p>
-          </div> */}
-
           <div className="flex justify-between w-full my-4">
             <p className="text-white font-bold">From</p>
-            <p className="text-white font-bold text-xs my-[4px]">{transactionData?.result.from}</p>
+            <p className="text-white font-bold text-xs my-[4px]">
+              {transactionData?.result.from}
+            </p>
           </div>
 
           <div className="flex justify-between w-full my-4">
             <p className="text-white font-bold">To</p>
-            <p className="text-white font-bold text-xs my-[4px]">{transactionData?.result.to}</p>
+            <p className="text-white font-bold text-xs my-[4px]">
+              {transactionData?.result.to}
+            </p>
           </div>
           <div>
             <p className="text-white font-bold">Transaction</p>
 
             <div className="flex justify-between w-full my-2">
               <p className="text-white text-sm">Nonce</p>
-              <p className="text-white text-sm">{hexToNumber(transactionData?.result?.nonce)}</p>
+              <p className="text-white text-sm">
+                {hexToNumber(transactionData?.result?.nonce)}
+              </p>
             </div>
 
             <div className="flex justify-between w-full my-2">
               <p className="text-white text-sm">Amount</p>
-              <p className="text-white font-bold text-sm">{hexToEth(transactionData?.result?.value)}</p>
+              <p className="text-white font-bold text-sm">
+                {hexToEth(transactionData?.result?.value)}
+              </p>
             </div>
 
             <div className="flex justify-between w-full my-2">
               <p className="text-white text-sm">ChainId: </p>
-              <p className="text-white text-sm">{hexToNumber(transactionData?.result.chainId)}</p>
+              <p className="text-white text-sm">
+                {hexToNumber(transactionData?.result.chainId)}
+              </p>
             </div>
 
             <div className="flex justify-between w-full my-2">
               <p className="text-white text-sm">Max Gas Per Fee: </p>
-              <p className="text-white text-sm">{hexToEth(transactionData?.result.maxFeePerGas)}</p>
+              <p className="text-white text-sm">
+                {hexToEth(transactionData?.result.maxFeePerGas)}
+              </p>
             </div>
 
             <div className="flex justify-between w-full my-2">
               <p className="text-white text-sm">gas: </p>
-              <p className="text-white text-sm">{hexToEth(transactionData?.result.gasPrice)}</p>
+              <p className="text-white text-sm">
+                {hexToEth(transactionData?.result.gasPrice)}
+              </p>
             </div>
 
             <div className="flex justify-between w-full my-2">
               <p className="text-white text-sm">gasPrice: </p>
-              <p className="text-white text-sm">{hexToEth(transactionData?.result.gasPrice)}</p>
+              <p className="text-white text-sm">
+                {hexToEth(transactionData?.result.gasPrice)}
+              </p>
             </div>
 
             <div className="flex justify-between w-full my-2">
               <p className="text-white text-sm">blocknumber: </p>
-              <p className="text-white text-sm">{hexToNumber(transactionData?.result.blockNumber)}</p>
+              <p className="text-white text-sm">
+                {hexToNumber(transactionData?.result.blockNumber)}
+              </p>
             </div>
           </div>
 

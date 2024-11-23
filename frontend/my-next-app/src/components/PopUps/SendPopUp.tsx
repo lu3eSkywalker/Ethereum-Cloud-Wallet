@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
-import useFetchDetails from "./FetchAddress";
 import axios from "axios";
-import { useRouter } from "next/router";
+import useFetchAddress from "../CustomHooks/FetchAddress";
 
-const SendPopUp = ({ onClose }: any) => {
-  const ethAddress = useFetchDetails();
+interface SendEthProp {
+  onClose: () => void
+}
+
+const SendPopUp: React.FC<SendEthProp> = ({ onClose }) => {
+  const ethAddress = useFetchAddress();
 
   useEffect(() => {
     console.log("Eth Address:", ethAddress);
   }, [ethAddress]);
 
-  const [toSendEthAddress, setToSendEthAddress] = useState<String>("");
-  const [valueOfEthToSend, setValueOfEthToSend] = useState<String>("");
+  const [toSendEthAddress, setToSendEthAddress] = useState<string>("");
+  const [valueOfEthToSend, setValueOfEthToSend] = useState<string>("");
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [txResponse, setTxResponse] = useState<String>("");
-
-  const router = useRouter();
+  const [txResponse, setTxResponse] = useState<string>("");
 
   async function sendTxns() {
     setLoading(true);
@@ -44,10 +45,8 @@ const SendPopUp = ({ onClose }: any) => {
       } else {
         setTxResponse("Tx Failed");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(error);
-      console.log("This is the endpoint to get redirected to when no cookie: ", error.response.data.redirect);
-      router.push(`${error.response.data.redirect}`)
     } finally {
       setLoading(false);
     }

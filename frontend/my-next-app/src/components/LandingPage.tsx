@@ -14,15 +14,15 @@ const LandingPage = () => {
       <br />
 
       <div className="flex justify-center">
-        <div className="bg-sharpBlue w-[1425px] h-[350px] p-6 rounded-3xl shadow-lg mx-4 ">
-          <p className="text-white font-bold text-[70px] font-mono my-[20px] mx-[80px]">
+        <div className="bg-sharpBlue w-[1300px] h-[300px] p-6 rounded-3xl shadow-lg mx-4 ">
+          <p className="text-white font-bold text-[50px] font-mono my-[20px] mx-[80px]">
             Ethereum Wallet
           </p>
 
-          <p className="text-2xl text-white mx-[80px]">
+          <p className="text-xl text-white mx-[80px]">
             Looking for a safe cloud Wallet to do send ethereum?
           </p>
-          <p className="text-2xl text-white mx-[80px]">
+          <p className="text-xl text-white mx-[80px]">
             Join this Cloud Wallet today!!
           </p>
         </div>
@@ -34,22 +34,22 @@ const LandingPage = () => {
       <div className="flex justify-center">
         {/* Two Boxes */}
 
-        <div className="w-[700px] h-[600px] bg-greyIshBlack rounded-3xl shadow-lg p-6 space-y-6 my-[40px] mx-[15px]">
+        <div className="w-[600px] h-[500px] bg-greyIshBlack rounded-3xl shadow-lg p-6 space-y-6 my-[40px] mx-[15px]">
           <br />
 
           <div>
-            <p className="text-white font-sans text-4xl font-bold mx-[40px]">
+            <p className="text-white font-sans text-2xl font-bold mx-[40px]">
               How To Use Cloud Wallets
             </p>
             <br />
             <br />
-            <p className="text-white text-2xl mx-[40px]">
+            <p className="text-white text-xl mx-[40px]">
               1: SignUp Using Email
             </p>
-            <p className="text-white text-2xl mx-[40px]">
+            <p className="text-white text-xl mx-[40px]">
               1: Login Using the Credentials
             </p>{" "}
-            <p className="text-white text-2xl mx-[40px]">
+            <p className="text-white text-xl mx-[40px]">
               1: Simply do the transactions
             </p>
           </div>
@@ -57,12 +57,12 @@ const LandingPage = () => {
           <br />
 
           <div className="mx-5">
-            <div className="border-slate-400 border w-[410px] h-[100px] rounded-full">
+            <div className="border-slate-400 border w-[370px] h-[90px] rounded-full">
               <button
                 className={`${
                   mobileButton
-                    ? "rounded-full bg-green-400 text-black text-2xl py-5 px-10 mx-3 my-[10px] font-semibold"
-                    : "rounded-full text-white text-2xl py-5 px-10 mx-3 my-[10px] font-semibold"
+                    ? "rounded-full bg-green-400 text-black text-xl py-5 px-10 mx-3 my-[10px] font-semibold"
+                    : "rounded-full text-white text-xl py-5 px-10 mx-3 my-[10px] font-semibold"
                 }`}
                 onClick={() => {
                   setMobileButton(true);
@@ -74,8 +74,8 @@ const LandingPage = () => {
               <button
                 className={`${
                   extensionButton
-                    ? "rounded-full bg-green-400 text-black text-2xl py-5 px-10 mx-3 my-[10px] font-semibold"
-                    : "rounded-full text-white text-2xl py-5 px-10 mx-3 my-[10px] font-semibold"
+                    ? "rounded-full bg-green-400 text-black text-xl py-5 px-10 mx-3 my-[10px] font-semibold"
+                    : "rounded-full text-white text-xl py-5 px-10 mx-3 my-[10px] font-semibold"
                 }`}
                 onClick={() => {
                   setExtensionButton(true);
@@ -87,14 +87,14 @@ const LandingPage = () => {
             </div>
 
             <div className="">
-              <button className="text-black my-[70px] mx-[20px] text-3xl font-medium bg-green-400 py-5 px-10 rounded-full">
+              <button className="text-black my-[30px] mx-[20px] text-xl font-medium bg-green-400 py-5 px-10 rounded-full">
                 {mobileButton ? "Download Mobile App" : "Download Extension"}
               </button>
             </div>
           </div>
         </div>
 
-        <div className="w-[700px] h-[600px] bg-greyIshBlack rounded-3xl shadow-lg p-6 space-y-6 my-[40px]">
+        <div className="w-[600px] h-[500px] bg-greyIshBlack rounded-3xl shadow-lg p-6 space-y-6 my-[40px]">
           <br />
 
           <div>
@@ -105,7 +105,7 @@ const LandingPage = () => {
               width={200}
               height={200}
               alt="ETH Logo"
-              className="w-[300px] mx-[170px]"
+              className="w-[250px] mx-[150px]"
             />
           </div>
         </div>
@@ -255,7 +255,7 @@ const LandingPage = () => {
 
         <div className="flex justify-center">
           <p className="text-white text-[25px]">
-            This wallet uses a method called Shamir's Secret Sharing to store
+            This wallet uses a method called Shamirs Secret Sharing to store
             your private keys securely. Your private key is split into multiple
             parts,
           </p>

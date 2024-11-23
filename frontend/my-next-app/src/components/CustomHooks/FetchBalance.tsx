@@ -1,10 +1,10 @@
 import axios from 'axios';
-import React, { useState } from 'react'
+import { useState } from 'react'
 import useFetchDetails from './FetchAddress';
 
 const useFetchBalance = () => {
 
-   const [ethBalance, setEthBalance] = useState<String>("");
+   const [ethBalance, setEthBalance] = useState<string>("");
 
    const ethAddress = useFetchDetails();
 

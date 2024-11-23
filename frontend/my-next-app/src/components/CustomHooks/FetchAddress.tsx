@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const useFetchAddress = () => {
-  const [ethAddress, setEthAddress] = useState<String | null>( null);
+  const [ethAddress, setEthAddress] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   const router = useRouter();
@@ -19,19 +19,26 @@ const useFetchAddress = () => {
         );
 
         setEthAddress(response.data.data.ethereumAddress);
-
-      } catch (error: any) {
-        console.log(error);
-        console.log("This is the endpoint to get redirected to when no cookie: ", error.response.data.redirect);
-        router.push(`${error.response.data.redirect}`)
+      } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+          if (error.response) {
+            console.log(
+              "This is the endpoint to get redirected to when no cookie: ",
+              error.response.data.redirect
+            );
+            router.push(`${error.response.data.redirect}`);
+          }
+        } else {
+          console.log("An unexpected error occurred: ", error);
+        }
       } finally {
         setLoading(false);
       }
     }
     getData();
-  }, []);
+  });
 
-  if(loading && !ethAddress) {
+  if (loading && !ethAddress) {
     return null;
   }
 
