@@ -5,6 +5,16 @@ import { PrismaClient as PrismaClientDB } from "@prisma/client-db";
 import { getPrivateKey } from "../middleware/GetPrivateKey";
 const prisma = new PrismaClientDB();
 
+declare global {
+  namespace Express {
+      interface Request {
+          user?: any;
+      }
+  }
+}
+
+const RPC_URL = process.env.RPC_URL || "";
+
 const sendTxnSchema = z.object({
   toAddress: z.string(),
   valueEthToSend: z.string(),
@@ -24,12 +34,12 @@ export const sendTxn = async (req: Request, res: Response): Promise<void> => {
   const toAddress = parsedInput.data.toAddress;
   const ethValue = parsedInput.data.valueEthToSend;
 
-  const userId = req.user.id;
+  const userId = req.user.id
 
   const privateKey = await getPrivateKey(userId);
 
   const providers = new ethers.JsonRpcProvider(
-    ""
+    `${RPC_URL}`
   );
 
   // Sign a transaction
@@ -45,8 +55,8 @@ export const sendTxn = async (req: Request, res: Response): Promise<void> => {
   try {
     const sendTransaction = await wallet.sendTransaction({
       type: 2,
-      to: toAddress, 
-      from: ethAddress, 
+      to: toAddress,
+      from: ethAddress,
       nonce: nonce,
       gasLimit: 21000,
       maxPriorityFeePerGas: 2000000000,
@@ -55,8 +65,8 @@ export const sendTxn = async (req: Request, res: Response): Promise<void> => {
       chainId: 11155111,
       data: "0x",
       accessList: [],
-      blockTag: "latest", 
-      enableCcipRead: false, 
+      blockTag: "latest",
+      enableCcipRead: false,
       blobVersionedHashes: null,
       maxFeePerBlobGas: null,
       blobs: null,
@@ -68,40 +78,39 @@ export const sendTxn = async (req: Request, res: Response): Promise<void> => {
     // Add the transaction hash in the array
     const userTxns = await prisma.transactionHash.findFirst({
       where: {
-        userId: userId
+        userId: userId,
       },
       select: {
         txHash: true,
-        id: true
-      }
+        id: true,
+      },
     });
 
-
-    if(userTxns) {
+    if (userTxns) {
       const updatedArray = [...userTxns.txHash, txHash];
 
       await prisma.transactionHash.update({
         where: {
-          id: userTxns.id
+          id: userTxns.id,
         },
         data: {
-          txHash: updatedArray
-        }
-      })
+          txHash: updatedArray,
+        },
+      });
     } else {
       await prisma.transactionHash.create({
         data: {
           userId: userId,
-          txHash: [txHash]
-        }
-      })
+          txHash: [txHash],
+        },
+      });
     }
 
-    console.log(txHash);
-
-    const tx = await providers.getTransactionReceipt(txHash);
-    const receipt = tx?.getResult;
-    console.log(receipt);
+    res.status(200).json({
+      success: true,
+      transactionHash: txHash,
+      message: "Transaction Processed",
+    });
   } catch (error) {
     res.status(511).json({
       success: false,
@@ -145,7 +154,7 @@ export const getStatusByTxHash = async (
 
   try {
     const providers = new ethers.JsonRpcProvider(
-      ""
+      `${RPC_URL}`
     );
 
     const receipt = await providers.getTransactionReceipt(txHash);

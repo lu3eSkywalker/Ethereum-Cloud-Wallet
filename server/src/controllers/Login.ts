@@ -22,6 +22,11 @@ const prismaDB5 = new PrismaClientDB5();
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
+const LoginSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(5).max(15)
+});
+
 export const login = async(req: Request, res: Response): Promise<void> => {
     try {
         const parsedInput = LoginSchema.safeParse(req.body);
@@ -91,7 +96,6 @@ export const login = async(req: Request, res: Response): Promise<void> => {
     }
 }
 
-
 const txSchema = z.object({
     quantity: z.number(),
 })
@@ -138,12 +142,12 @@ async function getPrivateKey(userId: number) {
     const decoder = new TextDecoder();
     const decodedPrivateKey = decoder.decode(privateKey);
 
-    console.log("The Private Key of the User is: ", decodedPrivateKey)
+    // console.log("The Private Key of the User is: ", decodedPrivateKey)
 
     return decodedPrivateKey;
 }
 
-export const signTxns = async(req: Request, res: Response): Promise<void> => {
+export const signMessage = async(req: Request, res: Response): Promise<void> => {
 
     const jwtToken = req.header('Authorization');
 
@@ -169,12 +173,21 @@ export const signTxns = async(req: Request, res: Response): Promise<void> => {
     }).catch((error) => {
         console.log("Error: ", error);
     })
+
+    
+    const provider = new ethers.JsonRpcProvider(""); 
+
+    provider.getTransactionResult("");
+    provider.getTransaction("");
+
     
     res.status(200).json({
         success: true,
         data: privateKey,
         message: "Decoded the token Successfully"
     })
+
+    
 }
 
 function base64ToUint8Array(base64: any) {
@@ -187,4 +200,40 @@ function base64ToUint8Array(base64: any) {
     }
 
     return uint8Array
+}
+
+
+export const Logout = async(req: Request, res: Response): Promise<void> => {
+    try {
+        const jwtToken = req.cookies.jwt;
+
+        if(!jwtToken) {
+            res.status(401).json({
+                success: false,
+                message: "No token found"
+            });
+            return;
+        }
+
+        const addTokenToDB = await prisma.blacklistedtoken.create({
+            data: {
+                token: jwtToken,
+                createdAt: new Date()
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            data: addTokenToDB,
+            message: "Successfully Blacklisted the token"
+        });
+
+    }
+    catch(error) {
+        console.log("Error: ", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server Error"
+        })
+    }
 }

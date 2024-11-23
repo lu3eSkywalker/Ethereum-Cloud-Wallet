@@ -136,10 +136,6 @@ export const Signup = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-
-
-
-
 // Sample code to get the Private Key
 const userIdSchema = z.object({
   userId: z.number()
